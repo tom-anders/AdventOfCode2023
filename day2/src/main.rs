@@ -1,7 +1,4 @@
-use std::collections::HashMap;
-use std::str::FromStr;
-
-use aoc_derive::aoc_main;
+use aoc_derive::{aoc_main, CollectFromStr, HashMapFromStr};
 #[allow(unused_imports)]
 use itertools::Itertools;
 #[allow(unused_imports)]
@@ -11,6 +8,8 @@ use utils::ParseInput;
 #[allow(unused_imports)]
 use utils::*;
 
+use std::collections::HashMap;
+
 #[derive(Debug, FromStr, PartialEq, Eq, Hash)]
 #[display(style = "snake_case")]
 enum Color {
@@ -19,43 +18,21 @@ enum Color {
     Green,
 }
 
-#[derive(Debug)]
-struct Reveal {
-    cubes: HashMap<Color, u32>,
-}
+#[derive(Debug, HashMapFromStr)]
+#[sep = ","]
+#[inner_sep = " "]
+#[reverse]
+struct Reveal(HashMap<Color, u32>);
 
 impl Reveal {
     fn get(&self, color: &Color) -> u32 {
-        *self.cubes.get(color).unwrap_or(&0)
+        *self.0.get(color).unwrap_or(&0)
     }
 }
 
-impl FromStr for Reveal {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self {
-            cubes: s
-                .split(',')
-                .flat_map(|s| {
-                    let (num, color) = s.trim().split(' ').collect_tuple()?;
-                    Some((color.parse().ok()?, num.parse().ok()?))
-                })
-                .collect(),
-        })
-    }
-}
-
-#[derive(Debug, derive_more::Deref)]
+#[derive(Debug, derive_more::Deref, CollectFromStr)]
+#[sep = ";"]
 struct Reveals(Vec<Reveal>);
-
-impl FromStr for Reveals {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(s.split(';').flat_map(|r| r.parse()).collect()))
-    }
-}
 
 #[derive(Debug, FromStr)]
 #[display("Game {id}: {reveals}")]
@@ -91,6 +68,6 @@ fn solve(input: Input) -> impl Into<Solution> {
             .clone()
             .filter_map(|g| g.possible().then_some(g.id))
             .sum_u64(),
-        games.map(|g| g.power()).sum_u64()
+        games.map(|g| g.power()).sum_u64(),
     )
 }

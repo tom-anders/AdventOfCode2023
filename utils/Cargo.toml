@@ -13,3 +13,5 @@ parse-display.workspace = true
 priority-queue.workspace = true
 num.workspace = true
 derive_more.workspace = true
+
+aoc_derive.path = "../aoc_derive"
