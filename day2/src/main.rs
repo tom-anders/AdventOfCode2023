@@ -90,7 +90,7 @@ fn solve(input: Input) -> impl Into<Solution> {
         games
             .clone()
             .filter_map(|g| g.possible().then_some(g.id))
-            .sum::<u32>(),
-        games.map(|g| g.power()).sum::<u32>(),
+            .sum_u64(),
+        games.map(|g| g.power()).sum_u64()
     )
 }
