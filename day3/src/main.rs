@@ -6,13 +6,7 @@ use utils::*;
 
 #[aoc_main]
 fn solve(input: Input) -> impl Into<Solution> {
-    let mut grid = input.char_grid();
-
-    // TODO add a add_padding method to our grid
-    for row in 0..grid.num_rows() {
-        grid.inner_mut()[row].push('.');
-    }
-    let grid = grid;
+    let grid = input.char_grid().pad_edges('.');
 
     let numbers = grid
         .rows()
