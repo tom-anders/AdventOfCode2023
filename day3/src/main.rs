@@ -13,7 +13,7 @@ fn solve(input: Input) -> impl Into<Solution> {
         .map(|row| {
             row.fold((vec![], vec![]), |(mut numbers, mut current), (pos, c)| {
                 if c.is_ascii_digit() {
-                    current.push((pos, c));
+                    current.push((pos, *c));
                 } else if !current.is_empty() {
                     numbers.push(current);
                     current = vec![];
@@ -36,9 +36,8 @@ fn solve(input: Input) -> impl Into<Solution> {
                         gear,
                         number
                             .iter()
-                            .fold("".to_string(), |acc, (_, n)| acc + &n.to_string())
-                            .parse::<u64>()
-                            .unwrap(),
+                            .map(|(_, n)| n)
+                            .fold_digits_to_u64()
                     )
                 })
         })
@@ -61,9 +60,8 @@ fn solve(input: Input) -> impl Into<Solution> {
         .map(|number| {
             number
                 .iter()
-                .fold("".to_string(), |acc, (_, n)| acc + &n.to_string())
-                .parse::<u64>()
-                .unwrap()
+                .map(|(_, n)| n)
+                .fold_digits_to_u64()
         })
         .sum_u64();
 

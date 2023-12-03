@@ -13,15 +13,13 @@ where
     P: Fn(&str) -> Option<&str> + Copy,
 {
     lines
-        .flat_map(|line| {
+        .map(|line| {
             let numbers = (0..line.len())
                 .map(|i| &line[i..])
                 .flat_map(map_to_number)
                 .collect_vec();
 
-            (numbers.first()?.to_string() + numbers.last()?)
-                .parse::<usize>()
-                .ok()
+            [numbers.first().unwrap(), numbers.last().unwrap()].into_iter().fold_digits_to_number::<usize, _>()
         })
         .sum()
 }
