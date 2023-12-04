@@ -17,3 +17,6 @@ parse-display.workspace = true
 priority-queue.workspace = true
 rayon.workspace = true
 regex.workspace = true
+
+[dev-dependencies]
+pretty_assertions.workspace = true
