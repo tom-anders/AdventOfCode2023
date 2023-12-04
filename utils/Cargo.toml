@@ -13,5 +13,6 @@ parse-display.workspace = true
 priority-queue.workspace = true
 num.workspace = true
 derive_more.workspace = true
+lazy-regex.workspace = true
 
 aoc_derive.path = "../aoc_derive"

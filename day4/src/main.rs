@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 use aoc_derive::aoc_main;
 use itertools::Itertools;
-use regex::Regex;
+use lazy_regex::regex;
 use utils::*;
 
 #[derive(Debug, derive_more::Deref, Clone)]
@@ -13,13 +13,7 @@ impl FromStr for CardSet {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(
-            Regex::new(r"\d+")
-                .unwrap()
-                .find_iter(s)
-                .map(|m| m.as_str().parse().unwrap())
-                .collect(),
-        ))
+        Ok(Self(extract_numbers(s).collect()))
     }
 }
 
@@ -33,21 +27,9 @@ impl FromStr for Card {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let games = s.split(':').last().unwrap();
+        let (winning, mine) = regex!(r"Card\s+\d+:(.*) \| (.*)").capture_parse_into_tuple(s);
 
-        let (winning, mine) = Regex::new(r"(.*) \| (.*)")
-            .unwrap()
-            .captures(games)
-            .unwrap()
-            .iter()
-            .skip(1)
-            .map(|c| c.unwrap().as_str())
-            .collect_tuple().unwrap();
-
-        Ok(Self {
-            winning: winning.parse().unwrap(),
-            mine: mine.parse().unwrap(),
-        })
+        Ok(Self { winning, mine })
     }
 }
 
