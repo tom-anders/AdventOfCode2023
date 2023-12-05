@@ -1,22 +1,19 @@
 use aoc_derive::aoc_main;
 use itertools::Itertools;
-use lazy_regex::regex_captures;
-use rangemap::RangeMap;
-use rayon::prelude::*;
-use utils::*;
+use lazy_regex::{regex, regex_captures};
+use rangemap::{RangeMap, RangeSet};
+use utils::{Input, Solution};
 
-fn parse_map(s: &[&str]) -> RangeMap<u64, u64> {
+fn parse_range_map(s: &[&str]) -> RangeMap<u64, u64> {
     s.iter()
         .skip(1)
         .map(|line| {
-            let (_, dest_range_start, source_range_start, len) =
-                regex_captures!(r"(\d+) (\d+) (\d+)", line).unwrap();
+            let (dest_range_start, source_range_start, len) = regex!(r"\d+")
+                .find_iter(line)
+                .map(|m| m.as_str().parse().unwrap())
+                .collect_tuple()
+                .unwrap();
 
-            let (dest_range_start, source_range_start, len) = (
-                dest_range_start.parse::<u64>().unwrap(),
-                source_range_start.parse::<u64>().unwrap(),
-                len.parse::<u64>().unwrap(),
-            );
             (
                 source_range_start..source_range_start + len,
                 dest_range_start,
@@ -25,56 +22,72 @@ fn parse_map(s: &[&str]) -> RangeMap<u64, u64> {
         .collect()
 }
 
-fn map_from(map: &RangeMap<u64, u64>, from: u64) -> u64 {
-    map.get_key_value(&from)
-        .map(|(source_range, dest_start)| dest_start + (from - source_range.start))
-        .unwrap_or(from)
-}
-
 #[aoc_main]
 fn solve(input: Input) -> impl Into<Solution> {
     let lines = input.lines().collect_vec();
     let mut blocks = lines.split(|line| line.is_empty());
 
-    let seeds: Vec<u64> = extract_numbers(
-        blocks
-            .next()
-            .unwrap()
-            .first()
-            .unwrap()
-            .split(": ")
-            .last()
-            .unwrap(),
-    )
-    .collect();
+    let seeds: Vec<u64> = regex!(r"\d+")
+        .find_iter(blocks.next().unwrap().first().unwrap())
+        .map(|s| s.as_str().parse().unwrap())
+        .collect();
 
-    let seed_to_soil = parse_map(blocks.next().unwrap());
-    let soil_to_fert = parse_map(blocks.next().unwrap());
-    let fert_to_water = parse_map(blocks.next().unwrap());
-    let water_to_light = parse_map(blocks.next().unwrap());
-    let light_to_temp = parse_map(blocks.next().unwrap());
-    let temp_to_humidity = parse_map(blocks.next().unwrap());
-    let humidity_to_location = parse_map(blocks.next().unwrap());
+    let type_maps = blocks.map(parse_range_map).collect_vec();
 
-    let seed_to_location = |seed: u64| {
-        let soil = map_from(&seed_to_soil, seed);
-        let fert = map_from(&soil_to_fert, soil);
-        let water = map_from(&fert_to_water, fert);
-        let light = map_from(&water_to_light, water);
-        let temp = map_from(&light_to_temp, light);
-        let hum = map_from(&temp_to_humidity, temp);
-        map_from(&humidity_to_location, hum)
-    };
-
-    let part1 = seeds.iter().copied().map(seed_to_location).min().unwrap();
+    let part1 = seeds
+        .iter()
+        .map(|seed| {
+            type_maps.iter().fold(*seed, |from, type_map| {
+                match type_map.get_key_value(&from) {
+                    Some((source_range, dest_start)) => dest_start + (from - source_range.start),
+                    None => from,
+                }
+            })
+        })
+        .min()
+        .unwrap();
 
     let part2 = seeds
         .into_iter()
         .tuples()
-        .collect_vec() // need to collect once so that size is know, allowing parallel iteration
-        .into_par_iter()
-        .flat_map(|(seed_start, len)| seed_start..seed_start + len)
-        .map(seed_to_location)
+        .map(|(seed_start, len)| {
+            let initial_range = RangeSet::from_iter(std::iter::once(seed_start..seed_start + len));
+            type_maps
+                .iter()
+                .fold(initial_range, |current_ranges, type_map| {
+                    current_ranges
+                        .iter()
+                        // For every of our ranges, find the ranges in the type_map that overlap
+                        // with it.
+                        .flat_map(|current_range| {
+                            type_map
+                                .overlapping(current_range)
+                                .zip(std::iter::repeat(current_range))
+                        })
+                        // Calculate the intersection between our range and the overlapping range,
+                        // then map it to the resulting destination range
+                        .map(|((range_with_overlap, dest_start), current_range)| {
+                            let intersection = current_range.start.max(range_with_overlap.start)
+                                ..current_range.end.min(range_with_overlap.end);
+
+                            let new_start =
+                                dest_start + (intersection.start - range_with_overlap.start);
+
+                            new_start..new_start + intersection.try_len().unwrap() as u64
+                        })
+                        // RangeMap::gaps() gives us the ranges where there's no overlap.
+                        // Those are not modified, so simply add them our next set
+                        .chain(current_ranges.iter().flat_map(|r| type_map.gaps(r)))
+                        .collect()
+                })
+                // After the fold, we have RangeSet containing our initial seed range mapped to
+                // location ranges.
+                // Since RangeSet is ordered, the minimum is simply the start of the first range
+                .iter()
+                .next()
+                .unwrap()
+                .start
+        })
         .min()
         .unwrap();
 
@@ -89,8 +102,6 @@ mod tests {
     #[test]
     fn test_examples() {
         use utils::assert_example;
-        // Any source numbers that aren't mapped correspond to the same destination number. So,
-        // seed number 10 corresponds to soil number 10.
         assert_example!(
             r#"
 seeds: 79 14 55 13
