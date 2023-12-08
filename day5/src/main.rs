@@ -1,6 +1,6 @@
 use aoc_derive::aoc_main;
 use itertools::Itertools;
-use lazy_regex::{regex, regex_captures};
+use lazy_regex::regex;
 use rangemap::{RangeMap, RangeSet};
 use utils::{Input, Solution, RegexHelper};
 
@@ -93,7 +93,6 @@ fn solve(input: Input) -> impl Into<Solution> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use pretty_assertions::assert_eq;
     use utils::assert_example;
     #[test]
     fn test_examples() {
