@@ -2,17 +2,14 @@ use aoc_derive::aoc_main;
 use itertools::Itertools;
 use lazy_regex::{regex, regex_captures};
 use rangemap::{RangeMap, RangeSet};
-use utils::{Input, Solution};
+use utils::{Input, Solution, RegexHelper};
 
 fn parse_range_map(s: &[&str]) -> RangeMap<u64, u64> {
     s.iter()
         .skip(1)
         .map(|line| {
             let (dest_range_start, source_range_start, len) = regex!(r"\d+")
-                .find_iter(line)
-                .map(|m| m.as_str().parse().unwrap())
-                .collect_tuple()
-                .unwrap();
+                .find_parse_into_tuple(line);
 
             (
                 source_range_start..source_range_start + len,
@@ -28,9 +25,8 @@ fn solve(input: Input) -> impl Into<Solution> {
     let mut blocks = lines.split(|line| line.is_empty());
 
     let seeds: Vec<u64> = regex!(r"\d+")
-        .find_iter(blocks.next().unwrap().first().unwrap())
-        .map(|s| s.as_str().parse().unwrap())
-        .collect();
+        .find_iter_parse(blocks.next().unwrap().first().unwrap())
+        .collect_vec();
 
     let type_maps = blocks.map(parse_range_map).collect_vec();
 
