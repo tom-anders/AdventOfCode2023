@@ -21,10 +21,9 @@ fn try_find_loop(
             return Some(main_loop);
         }
 
-        // TODO add a heading.xy_tuple()
-        heading = match ((heading.x, heading.y), grid.get(pos)?) {
-            ((1, 0) | (-1, 0), '-') => (heading.x, heading.y),
-            ((0, 1) | (0, -1), '|') => (heading.x, heading.y),
+        heading = match (heading.xy_tuple(), grid.get(pos)?) {
+            ((1, 0) | (-1, 0), '-') => heading.xy_tuple(),
+            ((0, 1) | (0, -1), '|') => heading.xy_tuple(),
 
             ((-1, 0), 'L') => (0, -1),
             ((0, 1), 'L') => (1, 0),
