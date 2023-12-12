@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use aoc_derive::aoc_main;
 use itertools::{FoldWhile, Itertools};
 use num::Integer;
@@ -14,8 +12,7 @@ fn try_find_loop(
 ) -> Option<SparseGrid<char>> {
     let mut pos = start;
     let mut heading = start_heading;
-    // TODO new() should take no param
-    let mut main_loop = SparseGrid::new(HashMap::new());
+    let mut main_loop = SparseGrid::new();
     loop {
         main_loop.insert(pos, *grid.get(pos).unwrap());
         pos += heading;
