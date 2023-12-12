@@ -1,0 +1,23 @@
+[package]
+name = "day12"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+aoc_derive.path = '../aoc_derive'
+utils.path = '../utils'
+derive_more.workspace = true
+itertools.workspace = true
+lazy-regex.workspace = true
+ndarray.workspace = true
+num.workspace = true
+parse-display.workspace = true
+priority-queue.workspace = true
+rayon.workspace = true
+regex.workspace = true
+indicatif = {version = "0.17.7", features = ["rayon"]}
+
+[dev-dependencies]
+pretty_assertions.workspace = true
