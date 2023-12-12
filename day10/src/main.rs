@@ -68,12 +68,7 @@ fn is_inside_loop(point: Vec2D, bounds: &Box2D, main_loop: &SparseGrid<char>) ->
 
 #[aoc_main]
 fn solve(input: Input) -> impl Into<Solution> {
-    //  TODO  add input::sparse_grid()
-    let grid: SparseGrid<char> = input
-        .lines()
-        .enumerate()
-        .flat_map(|(y, line)| line.chars().enumerate().map(move |(x, c)| ((x, y), c)))
-        .collect();
+    let grid = input.char_sparse_grid();
 
     let start = grid.iter().find_map(|(&pos, &c)| (c == 'S').then_some(pos)).unwrap();
 
