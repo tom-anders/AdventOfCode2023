@@ -79,12 +79,8 @@ fn solve(input: Input) -> impl Into<Solution> {
 
     let loop_bounds: Box2D = main_loop.iter().map(|(pos, _)| *pos).collect();
 
-    //  TODO should have a Box2D::points that does this!
-    let points_to_check = (loop_bounds.lower().x..=loop_bounds.upper().x)
-        .cartesian_product(loop_bounds.lower().y..=loop_bounds.upper().y);
-
     let part2 =
-        points_to_check.filter(|p| is_inside_loop(p.into(), &loop_bounds, &main_loop)).count();
+        loop_bounds.points_inside().filter(|&p| is_inside_loop(p, &loop_bounds, &main_loop)).count();
 
     (main_loop.len() / 2, part2)
 }
