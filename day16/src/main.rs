@@ -21,7 +21,7 @@ fn cast_rays(pos: Vec2D, heading: Vec2D, grid: &Grid<char>, visited: &mut HashSe
         return;
     }
 
-    let (new_heading1, maybe_new_heading2) = match (grid.try_get(pos), heading.xy_tuple()) {
+    let (new_heading1, maybe_new_heading2) = match (grid.get(pos), heading.xy_tuple()) {
         (None, _) => return,
         (Some('-'), (1, 0) | (-1, 0)) => (heading, None),
         (Some('|'), (0, 1) | (0, -1)) => (heading, None),

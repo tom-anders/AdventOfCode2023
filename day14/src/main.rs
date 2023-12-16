@@ -28,7 +28,7 @@ impl Platform {
     fn move_rock(&mut self, mut pos: Vec2D, dir: Vec2D) {
         loop {
             let next = pos + dir;
-            if let Some('.') = self.try_get(next) && *self.get(pos) == 'O' {
+            if let Some('.') = self.get(next) && self[pos] == 'O' {
                 self.swap(pos, next);
                 pos = next;
             } else {

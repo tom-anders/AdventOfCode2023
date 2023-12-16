@@ -30,7 +30,7 @@ fn solve(input: Input) -> impl Into<Solution> {
         .filter_map(|number| {
             number
                 .iter()
-                .find_map(|(pos, _)| grid.all_neighbors(pos).find(|p| *grid.get(*p) == '*'))
+                .find_map(|(pos, _)| grid.all_neighbors(pos).find(|p| grid[*p] == '*'))
                 .map(|gear| {
                     (
                         gear,
@@ -54,7 +54,7 @@ fn solve(input: Input) -> impl Into<Solution> {
         .filter(|number| {
             number.iter().any(|(pos, _)| {
                 grid.all_neighbors(pos)
-                    .any(|p| !grid.get(p).is_ascii_digit() && *grid.get(p) != '.')
+                    .any(|p| !grid[p].is_ascii_digit() && grid[p] != '.')
             })
         })
         .map(|number| {

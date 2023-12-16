@@ -46,7 +46,7 @@ impl Pattern {
         let prev_refl = self.find_reflection(None).unwrap();
         for (pos, c) in self.iter() {
             let mut new_grid = self.clone();
-            *new_grid.get_mut(pos) = if *c == '#' { '.' } else { '#' };
+            new_grid[pos] = if *c == '#' { '.' } else { '#' };
             if let Some(reflection) = new_grid.find_reflection(Some(prev_refl)) {
                 if reflection != prev_refl {
                     return reflection;
