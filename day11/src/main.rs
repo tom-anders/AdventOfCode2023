@@ -65,7 +65,7 @@ mod tests {
     #[test]
     fn test_examples() {
             let example =
-            Input::from_str(r#"
+            Input::from(r#"
 ...#......
 .......#..
 #.........
@@ -76,7 +76,7 @@ mod tests {
 ..........
 .......#..
 #...#.....
-                "#.trim());
+                "#);
             assert_eq!(Universe::new(example.char_grid(), 1).solve(), 374);
             assert_eq!(Universe::new(example.char_grid(), 10).solve(), 1030);
             assert_eq!(Universe::new(example.char_grid(), 100).solve(), 8410);
