@@ -80,13 +80,5 @@ mod tests {
             assert_eq!(Universe::new(example.char_grid(), 1).solve(), 374);
             assert_eq!(Universe::new(example.char_grid(), 10).solve(), 1030);
             assert_eq!(Universe::new(example.char_grid(), 100).solve(), 8410);
-        //         assert_example!(
-        //             r#"
-        // #.
-        // ..
-        // .#
-        //                 "#,
-        //                 13
-        //         );
     }
 }
