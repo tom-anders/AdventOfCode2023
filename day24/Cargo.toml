@@ -1,0 +1,22 @@
+[package]
+name = "day24"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+aoc_derive.path = '../aoc_derive'
+utils.path = '../utils'
+derive_more.workspace = true
+itertools.workspace = true
+lazy-regex.workspace = true
+parse-display.workspace = true
+rayon.workspace = true
+regex.workspace = true
+ndarray.workspace = true
+ndarray-linalg = { version = "0.16.0", features = ["openblas-system"]}
+indicatif = { version = "0.17.7", features = ["rayon"] }
+
+[dev-dependencies]
+pretty_assertions.workspace = true
