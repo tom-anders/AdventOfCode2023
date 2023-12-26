@@ -9,6 +9,7 @@ edition = "2021"
 aoc_derive.path = '../aoc_derive'
 utils.path = '../utils'
 derive_more.workspace = true
+dot-writer.workspace = true
 itertools.workspace = true
 lazy-regex.workspace = true
 ndarray.workspace = true
@@ -19,4 +20,3 @@ num.workspace = true
 
 [dev-dependencies]
 pretty_assertions.workspace = true
-dot-writer="0.1.3"

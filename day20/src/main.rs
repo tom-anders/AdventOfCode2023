@@ -1,4 +1,8 @@
-use std::collections::{HashMap, VecDeque};
+use std::{
+    collections::{HashMap, VecDeque},
+    fs::File,
+    io::BufWriter,
+};
 
 use aoc_derive::aoc_main;
 use itertools::Itertools;
@@ -185,21 +189,48 @@ fn find_cycle_match(
 fn solve(input: Input) -> impl Into<Solution> {
     let network = Network::new(&input);
 
-    let mut cycles = vec![];
-    for conj in ["ms", "xd", "zt", "gt"] {
-        let sub_cycles = network
-            .modules
-            .iter()
-            .filter(|(name, module)| {
-                matches!(module.ty, ModuleType::FlipFlop { .. })
-                    && (module.outputs.contains(&conj)
-                        || network.modules[conj].outputs.contains(name))
-            })
-            .map(|(name, _)| network.clone().find_high_cycle(name))
-            .sorted()
-            .collect_vec();
-        cycles.push(*sub_cycles.last().unwrap());
+    if let Ok(file) = File::create("inputs/graph20.dot") {
+        let mut output = BufWriter::new(file);
+        use dot_writer::*;
+        let mut writer = DotWriter::from(&mut output);
+
+        writer.set_pretty_print(false);
+
+        let mut graph = writer.digraph();
+        for (&name, module) in &network.modules {
+            graph
+                .node_named(name)
+                .set_color(match module.ty {
+                    ModuleType::Broadcaster => Color::Grey,
+                    ModuleType::FlipFlop { .. } => Color::Red,
+                    ModuleType::Conjunction { .. } => Color::PaleTurquoise,
+                })
+                .set_style(Style::Filled);
+            for &output in &module.outputs {
+                graph.edge(name, output);
+            }
+        }
+        graph.node_named("rx").set_color(Color::PaleGreen).set_style(Style::Filled);
     }
+
+    // Inspect graph above to find the names of the conjunctions we need to sync
+    let cycles = ["ms", "xd", "zt", "gt"]
+        .into_iter()
+        .map(|conj| {
+            let sub_cycles = network
+                .modules
+                .iter()
+                .filter(|(name, module)| {
+                    matches!(module.ty, ModuleType::FlipFlop { .. })
+                        && (module.outputs.contains(&conj)
+                            || network.modules[conj].outputs.contains(name))
+                })
+                .map(|(name, _)| network.clone().find_high_cycle(name))
+                .sorted()
+                .collect_vec();
+            *sub_cycles.last().unwrap()
+        })
+        .collect_vec();
 
     (
         part1(&input),
@@ -209,42 +240,4 @@ fn solve(input: Input) -> impl Into<Solution> {
             .fold(*cycles.first().unwrap(), |lhs, rhs| find_cycle_match(lhs, *rhs))
             .1,
     )
-}
-
-#[cfg(test)]
-mod tests {
-    use std::{fs::File, io::BufWriter};
-
-    use super::*;
-
-    #[test]
-    fn draw_graph() {
-        let input = Input::new(&format!("{}/../inputs/20.in", std::env!("CARGO_MANIFEST_DIR")));
-        let network = Network::new(&input);
-
-        let mut output = BufWriter::new(
-            File::create(format!("{}/../inputs/graph20.dot", std::env!("CARGO_MANIFEST_DIR")))
-                .unwrap(),
-        );
-        use dot_writer::*;
-        let mut writer = DotWriter::from(&mut output);
-
-        writer.set_pretty_print(false);
-
-        let mut graph = writer.digraph();
-        for (name, module) in network.modules {
-            graph
-                .node_named(name)
-                .set_color(match module.ty {
-                    ModuleType::Broadcaster => Color::Grey,
-                    ModuleType::FlipFlop { .. } => Color::Red,
-                    ModuleType::Conjunction { .. } => Color::PaleTurquoise,
-                })
-                .set_style(Style::Filled);
-            for output in module.outputs {
-                graph.edge(name, output);
-            }
-        }
-        graph.node_named("rx").set_color(Color::PaleGreen).set_style(Style::Filled);
-    }
 }
